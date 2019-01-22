@@ -1,4 +1,4 @@
-let articleDict = [ '传记 Biography', '短篇故事 Short Story', '漫画 Manga' ];
+let articleDict = [ '传记 Biography', '故事 Story', '漫画 Manga' ];
 let Moment = require('moment');
 
 let util = {
@@ -36,11 +36,11 @@ let util = {
 		return result;
 	},
 	// 混合段落
-	makePara: function(cnParas = [], enParas = [], isMakeCata = false) {
+	makePara: function(cnParas = [], enParas = [], isCount = false, isMakeCata = false, numCataWrap) {
 		let max = cnParas.length > enParas.length ? cnParas.length : enParas.length;
 
 		let result = [];
-		let numCata = 0;
+		let numCata = numCataWrap ? numCataWrap.start : 0;
 
 		for(let i=0; i<max; i++) {
 			let cnPara = (cnParas[i] || '').trim();
@@ -52,10 +52,8 @@ let util = {
 
 			if(i != 0) { result.push(''); }
 
-			if(isMakeCata) {
-				result.push('#### '+ ('00'+(i+1)).slice(-2));
-
-				numCata++;
+			if(isCount || isMakeCata) {
+				result.push('#### '+ ('00'+(++numCata)).slice(-2));
 			}
 
 			let cnSents;
@@ -72,8 +70,12 @@ let util = {
 			result = result.concat(util.makeSent(cnSents, enSents));
 		}
 
+		if(numCataWrap) {
+			numCataWrap.start = numCata;
+		}
+
 		if(isMakeCata) {
-			result = util.makeCata(numCata).concat(result);
+			result = util.makeCata().concat(result);
 		}
 
 		return result;
@@ -117,7 +119,7 @@ let util = {
 		}
 
 		if(isMakeCata) {
-			result = util.makeCata().concat(result);
+			result = util.makeCata(numHara).concat(result);
 		}
 
 		return result;
